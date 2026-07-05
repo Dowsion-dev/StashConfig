@@ -1,0 +1,20 @@
+# NAME: Node
+# DESCRIPTION: Personal Servers & Node Domains/IPs
+# UPDATED: 2026-07-06
+# TYPE: Classical
+
+# ===== Domain =====
+DOMAIN-SUFFIX,dowsion.com
+DOMAIN-SUFFIX,stary.cloud
+
+# ===== IP =====
+IP-CIDR,168.138.160.201/32,no-resolve
+IP-CIDR,129.151.88.31/32,no-resolve
+IP-CIDR,150.230.46.53/32,no-resolve
+IP-CIDR,154.21.81.185/32,no-resolve
+IP-CIDR,154.21.81.225/32,no-resolve
+IP-CIDR,64.186.237.84/32,no-resolve
+IP-CIDR,154.12.176.153/32,no-resolve
+IP-CIDR,45.78.76.81/32,no-resolve
+IP-CIDR,192.129.217.245/32,no-resolve
+IP-CIDR,31.25.89.211/32,no-resolve
