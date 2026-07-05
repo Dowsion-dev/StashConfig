@@ -1,0 +1,12 @@
+# NAME: Custom
+# DESCRIPTION: Custom rules reserved for future use
+# REPO: https://raw.githubusercontent.com/Dowsion-dev/StashConfig/main/Providers/Rules/Custom.list
+# UPDATED: 2026-07-06
+# TYPE: Classical
+#
+# Example:
+# DOMAIN-SUFFIX,example.com
+# DOMAIN,example.org
+# IP-CIDR,1.1.1.1/32,no-resolve
+# PROCESS-NAME,Example.exe
+# DST-PORT,443
