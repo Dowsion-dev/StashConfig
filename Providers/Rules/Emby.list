@@ -1,0 +1,6 @@
+# NAME: Emby
+# REPO: https://raw.githubusercontent.com/Dowsion-dev/StashConfig/main/Providers/Rules/Emby.list
+# UPDATED: 2026-07-06
+# TYPE: Classical
+
+DOMAIN-SUFFIX,uhdnow.com
