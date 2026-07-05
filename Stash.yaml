@@ -1,1 +1,464 @@
+################################################################################
+# StashConfig v1.0
+# Repository: https://github.com/Dowsion-dev/StashConfig
+# Author: Dowsion
+################################################################################
 
+# ==============================================================================
+# General
+# ==============================================================================
+
+mode: rule
+log-level: info
+
+allow-lan: false
+mixed-port: 7890
+
+ipv6: false
+unified-delay: true
+tcp-concurrent: true
+
+find-process-mode: strict
+
+keep-alive-idle: 600
+keep-alive-interval: 15
+
+external-controller: 127.0.0.1:9090
+
+profile:
+  store-selected: true
+  store-fake-ip: true
+
+# ==============================================================================
+# GeoData
+# ==============================================================================
+
+geodata-mode: true
+geo-auto-update: true
+geo-update-interval: 24
+
+geox-url:
+  geoip: https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip.dat
+  geosite: https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geosite.dat
+  mmdb: https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/country.mmdb
+  asn: https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/GeoLite2-ASN.mmdb
+
+# ==============================================================================
+# Proxy Providers
+# MiSub 管理所有节点
+# ==============================================================================
+
+proxy-providers:
+  MiSub:
+    type: http
+    url: "https://sub.dowsion.com/AllinOneShare/cb197ece-cdfc-44f7-9804-73825a0c3eeb?clash"
+    path: ./Providers/Proxy/MiSub.yaml
+    interval: 86400
+    proxy: DIRECT
+    health-check:
+      enable: true
+      url: https://cp.cloudflare.com/generate_204
+      interval: 600
+      lazy: true
+
+# ==============================================================================
+# Rule Providers
+# ==============================================================================
+
+rule-providers:
+  Node:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/Dowsion-dev/StashConfig/main/Providers/Rules/Node.list
+    path: ./ruleset/Node.list
+    interval: 86400
+
+  Emby:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/Dowsion-dev/StashConfig/main/Providers/Rules/Emby.list
+    path: ./ruleset/Emby.list
+    interval: 86400
+
+  Custom:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/Dowsion-dev/StashConfig/main/Providers/Rules/Custom.list
+    path: ./ruleset/Custom.list
+    interval: 86400
+
+# ==============================================================================
+# Proxy Groups
+# V1.0 策略组结构：业务分组 + 地区分组
+# ==============================================================================
+
+proxy-groups:
+
+  # ---------------------------------------------------------------------------
+  # Main
+  # ---------------------------------------------------------------------------
+
+  - name: 🚀 节点选择
+    type: select
+    proxies:
+      - ♻️ 自动选择
+      - 🔯 故障转移
+      - 🔮 负载均衡
+      - 🇭🇰 香港节点
+      - 🇯🇵 日本节点
+      - 🇸🇬 新加坡节点
+      - 🇺🇸 美国节点
+      - 🇩🇪 德国节点
+      - 🇰🇷 韩国节点
+      - 🏠 家宽节点
+      - DIRECT
+
+  - name: ♻️ 自动选择
+    type: url-test
+    use:
+      - MiSub
+    url: https://cp.cloudflare.com/generate_204
+    interval: 300
+    tolerance: 50
+
+  - name: 🔯 故障转移
+    type: fallback
+    use:
+      - MiSub
+    url: https://cp.cloudflare.com/generate_204
+    interval: 300
+
+  - name: 🔮 负载均衡
+    type: load-balance
+    strategy: consistent-hashing
+    use:
+      - MiSub
+    url: https://cp.cloudflare.com/generate_204
+    interval: 300
+
+  # ---------------------------------------------------------------------------
+  # Region
+  # ---------------------------------------------------------------------------
+
+  - name: 🇭🇰 香港节点
+    type: select
+    use:
+      - MiSub
+    filter: "(?i)(香港|港|HK|Hong Kong|HKG)"
+
+  - name: 🇯🇵 日本节点
+    type: select
+    use:
+      - MiSub
+    filter: "(?i)(日本|东京|大阪|埼玉|JP|Japan|Tokyo|Osaka)"
+
+  - name: 🇸🇬 新加坡节点
+    type: select
+    use:
+      - MiSub
+    filter: "(?i)(新加坡|狮城|SG|Singapore)"
+
+  - name: 🇺🇸 美国节点
+    type: select
+    use:
+      - MiSub
+    filter: "(?i)(美国|美|US|USA|United States|洛杉矶|硅谷|纽约|LAX|SJC|NYC)"
+
+  - name: 🇩🇪 德国节点
+    type: select
+    use:
+      - MiSub
+    filter: "(?i)(德国|德|DE|Germany|Frankfurt|法兰克福)"
+
+  - name: 🇰🇷 韩国节点
+    type: select
+    use:
+      - MiSub
+    filter: "(?i)(韩国|韩|KR|KOR|Korea|South Korea|首尔|Seoul)"
+
+  - name: 🏠 家宽节点
+    type: select
+    use:
+      - MiSub
+    filter: "(?i)(家宽|住宅|Residential|Home|ISP)"
+
+  # ---------------------------------------------------------------------------
+  # Business
+  # ---------------------------------------------------------------------------
+
+  - name: 🤖 AI
+    type: select
+    proxies:
+      - ♻️ 自动选择
+      - 🇺🇸 美国节点
+      - 🇸🇬 新加坡节点
+      - 🇯🇵 日本节点
+      - 🇰🇷 韩国节点
+      - 🚀 节点选择
+      - DIRECT
+
+  - name: 🎬 Streaming
+    type: select
+    proxies:
+      - ♻️ 自动选择
+      - 🇺🇸 美国节点
+      - 🇸🇬 新加坡节点
+      - 🇯🇵 日本节点
+      - 🇰🇷 韩国节点
+      - 🇭🇰 香港节点
+      - 🚀 节点选择
+      - DIRECT
+
+  - name: 💬 Social
+    type: select
+    proxies:
+      - ♻️ 自动选择
+      - 🇸🇬 新加坡节点
+      - 🇺🇸 美国节点
+      - 🇯🇵 日本节点
+      - 🇰🇷 韩国节点
+      - 🇭🇰 香港节点
+      - 🚀 节点选择
+      - DIRECT
+
+  - name: 💻 Developer
+    type: select
+    proxies:
+      - DIRECT
+      - ♻️ 自动选择
+      - 🇺🇸 美国节点
+      - 🇸🇬 新加坡节点
+      - 🇯🇵 日本节点
+      - 🇰🇷 韩国节点
+      - 🚀 节点选择
+
+  - name: 🇬 Google
+    type: select
+    proxies:
+      - ♻️ 自动选择
+      - 🇺🇸 美国节点
+      - 🇸🇬 新加坡节点
+      - 🇯🇵 日本节点
+      - 🇰🇷 韩国节点
+      - 🚀 节点选择
+      - DIRECT
+
+  - name: 🍎 Apple
+    type: select
+    proxies:
+      - DIRECT
+      - ♻️ 自动选择
+      - 🇺🇸 美国节点
+      - 🇯🇵 日本节点
+      - 🇰🇷 韩国节点
+      - 🚀 节点选择
+
+  - name: Ⓜ️ Microsoft
+    type: select
+    proxies:
+      - DIRECT
+      - ♻️ 自动选择
+      - 🇺🇸 美国节点
+      - 🇸🇬 新加坡节点
+      - 🇯🇵 日本节点
+      - 🇰🇷 韩国节点
+      - 🚀 节点选择
+
+  - name: 🎮 Gaming
+    type: select
+    proxies:
+      - DIRECT
+      - 🏠 家宽节点
+      - 🇭🇰 香港节点
+      - 🇯🇵 日本节点
+      - 🇰🇷 韩国节点
+      - 🇸🇬 新加坡节点
+      - 🇺🇸 美国节点
+      - ♻️ 自动选择
+      - 🚀 节点选择
+
+  - name: 💳 PayPal
+    type: select
+    proxies:
+      - 🇺🇸 美国节点
+      - 🇸🇬 新加坡节点
+      - 🇯🇵 日本节点
+      - 🇰🇷 韩国节点
+      - ♻️ 自动选择
+      - 🚀 节点选择
+      - DIRECT
+
+  - name: 🛒 Shopping
+    type: select
+    proxies:
+      - DIRECT
+      - ♻️ 自动选择
+      - 🇺🇸 美国节点
+      - 🇯🇵 日本节点
+      - 🇰🇷 韩国节点
+      - 🚀 节点选择
+
+  - name: 🎥 Emby
+    type: select
+    proxies:
+      - DIRECT
+      - 🚀 节点选择
+      - ♻️ 自动选择
+      - 🇺🇸 美国节点
+      - 🇸🇬 新加坡节点
+      - 🇯🇵 日本节点
+      - 🇰🇷 韩国节点
+
+  - name: ⏬ PT
+    type: select
+    proxies:
+      - DIRECT
+      - 🚀 节点选择
+
+  - name: 🚀 测速
+    type: select
+    proxies:
+      - ♻️ 自动选择
+      - 🚀 节点选择
+      - DIRECT
+
+  - name: 🔀 非标端口
+    type: select
+    proxies:
+      - 🚀 节点选择
+      - ♻️ 自动选择
+      - DIRECT
+
+  - name: 🐟 漏网之鱼
+    type: select
+    proxies:
+      - 🚀 节点选择
+      - ♻️ 自动选择
+      - DIRECT
+
+# ==============================================================================
+# Rules
+# ==============================================================================
+
+rules:
+
+  # ---------------------------------------------------------------------------
+  # Private / Personal Rules
+  # ---------------------------------------------------------------------------
+
+  - RULE-SET,Node,DIRECT
+  - RULE-SET,Emby,🎥 Emby
+  - RULE-SET,Custom,🚀 节点选择
+
+  # ---------------------------------------------------------------------------
+  # LAN / Private
+  # ---------------------------------------------------------------------------
+
+  - GEOSITE,private,DIRECT
+  - GEOIP,private,DIRECT,no-resolve
+
+  # ---------------------------------------------------------------------------
+  # AI
+  # ---------------------------------------------------------------------------
+
+  - GEOSITE,openai,🤖 AI
+  - GEOSITE,bing,🤖 AI
+  - GEOSITE,category-ai-!cn,🤖 AI
+
+  # ---------------------------------------------------------------------------
+  # Social / Communication
+  # ---------------------------------------------------------------------------
+
+  - GEOSITE,category-communication,💬 Social
+  - GEOSITE,category-social-media-!cn,💬 Social
+  - GEOSITE,talkatone,💬 Social
+  - GEOIP,telegram,💬 Social,no-resolve
+  - GEOIP,twitter,💬 Social,no-resolve
+  - GEOIP,facebook,💬 Social,no-resolve
+
+  # ---------------------------------------------------------------------------
+  # Developer
+  # ---------------------------------------------------------------------------
+
+  - GEOSITE,github,💻 Developer
+  - GEOSITE,category-speedtest,🚀 测速
+
+  # ---------------------------------------------------------------------------
+  # Google
+  # ---------------------------------------------------------------------------
+
+  - GEOSITE,googlefcm,🇬 Google
+  - GEOSITE,google,🇬 Google
+  - GEOIP,google,🇬 Google,no-resolve
+
+  # ---------------------------------------------------------------------------
+  # Apple / Microsoft
+  # ---------------------------------------------------------------------------
+
+  - GEOSITE,apple-tvplus,🎬 Streaming
+  - GEOSITE,apple,🍎 Apple
+
+  - GEOSITE,onedrive,Ⓜ️ Microsoft
+  - GEOSITE,microsoft,Ⓜ️ Microsoft
+
+  # ---------------------------------------------------------------------------
+  # Streaming / Media
+  # ---------------------------------------------------------------------------
+
+  - GEOSITE,youtube,🎬 Streaming
+  - GEOSITE,tiktok,🎬 Streaming
+  - GEOSITE,netflix,🎬 Streaming
+  - GEOIP,netflix,🎬 Streaming,no-resolve
+  - GEOSITE,disney,🎬 Streaming
+  - GEOSITE,hbo,🎬 Streaming
+  - GEOSITE,primevideo,🎬 Streaming
+  - GEOSITE,category-emby,🎥 Emby
+  - GEOSITE,spotify,🎬 Streaming
+  - GEOSITE,bahamut,🎬 Streaming
+  - GEOSITE,category-entertainment,🎬 Streaming
+
+  # ---------------------------------------------------------------------------
+  # Gaming
+  # ---------------------------------------------------------------------------
+
+  - GEOSITE,steam,🎮 Gaming
+  - GEOSITE,category-games,🎮 Gaming
+  - GEOSITE,category-games@cn,DIRECT
+  - GEOSITE,category-game-platforms-download,DIRECT
+
+  # ---------------------------------------------------------------------------
+  # PT / Shopping / PayPal
+  # ---------------------------------------------------------------------------
+
+  - GEOSITE,category-pt,⏬ PT
+  - GEOSITE,category-public-tracker,DIRECT
+  - GEOSITE,paypal,💳 PayPal
+  - GEOSITE,category-ecommerce,🛒 Shopping
+
+  # ---------------------------------------------------------------------------
+  # GFW / Manual
+  # ---------------------------------------------------------------------------
+
+  - GEOSITE,gfw,🚀 节点选择
+
+  # ---------------------------------------------------------------------------
+  # China Direct
+  # ---------------------------------------------------------------------------
+
+  - GEOSITE,google-cn,DIRECT
+  - GEOSITE,cn,DIRECT
+  - GEOIP,cn,DIRECT,no-resolve
+
+  # ---------------------------------------------------------------------------
+  # Non-standard Ports
+  # ---------------------------------------------------------------------------
+
+  - DST-PORT,1-79,🔀 非标端口
+  - DST-PORT,81-442,🔀 非标端口
+  - DST-PORT,444-65535,🔀 非标端口
+
+  # ---------------------------------------------------------------------------
+  # Final
+  # ---------------------------------------------------------------------------
+
+  - MATCH,🐟 漏网之鱼
