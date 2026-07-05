@@ -1,0 +1,94 @@
+################################################################################
+# DNS Module
+# StashConfig v1.0
+################################################################################
+
+dns:
+
+  enable: true
+
+  listen: 0.0.0.0:53
+
+  ipv6: false
+
+  prefer-h3: true
+
+  use-system-hosts: true
+
+  respect-rules: true
+
+  enhanced-mode: fake-ip
+
+  fake-ip-range: 198.18.0.1/16
+
+  fake-ip-filter-mode: blacklist
+
+  cache-algorithm: arc
+
+  nameserver:
+
+    - https://1.1.1.1/dns-query
+    - https://dns.cloudflare.com/dns-query
+
+  fallback:
+
+    - https://1.0.0.1/dns-query
+    - https://dns.google/dns-query
+
+  fallback-filter:
+
+    geoip: true
+
+    geoip-code: CN
+
+    geosite:
+
+      - gfw
+
+    ipcidr:
+
+      - 240.0.0.0/4
+
+  nameserver-policy:
+
+    "geosite:private":
+
+      - system
+
+    "geosite:cn":
+
+      - https://doh.pub/dns-query
+
+      - https://dns.alidns.com/dns-query
+
+    "geosite:geolocation-!cn":
+
+      - https://1.1.1.1/dns-query
+
+      - https://dns.cloudflare.com/dns-query
+
+  fake-ip-filter:
+
+    - "*.lan"
+
+    - "*.local"
+
+    - localhost.ptlogin2.qq.com
+
+    - +.msftconnecttest.com
+
+    - +.msftncsi.com
+
+    - +.stun.playstation.net
+
+    - +.stun.l.google.com
+
+    - +.stun.cloudflare.com
+
+    - +.stun.syncthing.net
+
+    - time.*
+
+    - ntp.*
+
+    - pool.ntp.org
